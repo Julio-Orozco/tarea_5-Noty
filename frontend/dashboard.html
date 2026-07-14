@@ -29,7 +29,10 @@
     <aside class="sidebar">
       <div class="sidebar-header">
         <div>
-          <h1 style="font-size: 2.2rem; margin: 0;">Noty</h1>
+          <h1 style="font-size: 2.2rem; margin: 0; display: flex; align-items: center; gap: 12px;">
+            <i class="ph-bold ph-notebook"></i>
+            Noty
+          </h1>
           <p style="font-size: 0.8rem; color: var(--muted); margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">Gestión de Notas</p>
         </div>
       </div>
@@ -59,8 +62,12 @@
         <button data-command="formatBlock" data-value="h3" type="button">H3</button>
         <button data-command="bold" type="button">B</button>
         <button data-command="italic" type="button">I</button>
-        <button data-command="insertUnorderedList" type="button">• Viñetas</button>
-        <button data-command="insertOrderedList" type="button">1. Numerada</button>
+        <button data-command="insertUnorderedList" type="button" title="Viñetas" class="toolbar-icon-btn">
+          <i class="ph-bold ph-list-bullets"></i>
+        </button>
+        <button data-command="insertOrderedList" type="button" title="Numerada" class="toolbar-icon-btn">
+          <i class="ph-bold ph-list-numbers"></i>
+        </button>
         <button data-command="formatBlock" data-value="p" type="button">Párrafo</button>
       </div>
 
@@ -361,6 +368,12 @@
         </html>
       `);
       printWindow.document.close();
+      
+      // Cerrar la ventana automáticamente cuando el usuario termina de imprimir o cancela
+      printWindow.addEventListener('afterprint', () => {
+        printWindow.close();
+      });
+      
       printWindow.print();
       showMessage("Usa Guardar como PDF en la ventana de impresión.", "success");
     }

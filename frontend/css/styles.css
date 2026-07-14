@@ -1499,7 +1499,7 @@ ESTILOS PARA LOGIN, REGISTER, DASHBOARD
 
 
 /* ============================================
-   MODAL PERSONALIZADO
+  MODAL PERSONALIZADO
    ============================================ */
 .modal-overlay {
   position: fixed;
@@ -1621,3 +1621,25 @@ ESTILOS PARA LOGIN, REGISTER, DASHBOARD
   background: #b91c1c;
 }
 
+.toolbar-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  min-width: 34px;
+  padding: 0 8px !important;
+}
+
+.toolbar-icon-btn i {
+  font-size: 1.2rem;
+}
+
+.sidebar-header {
+  margin-bottom: 32px;
+}
+
+
+
+.sidebar h1 i {
+  color: var(--primary);
+}
