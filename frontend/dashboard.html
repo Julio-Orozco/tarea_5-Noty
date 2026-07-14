@@ -6,21 +6,41 @@
   <title>Dashboard | Noty</title>
   <link rel="stylesheet" href="css/styles.css">
   <link rel="icon" type="image/png" href="images/noty-favicon.png">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
 
 <body class="dashboard-page">
+  <!-- ===== MODAL PERSONALIZADO ===== -->
+  <div id="customModal" class="modal-overlay" style="display: none;">
+    <div class="modal-box">
+      <h3 id="modalTitle" class="modal-title">
+        <span id="modalTitleIcon" class="modal-title-icon"></span>
+        <span id="modalTitleText">¡Atención!</span>
+      </h3>
+      <p id="modalMessage" class="modal-message">El título y el contenido son obligatorios.</p>
+      <div id="modalButtonsContainer" class="modal-buttons">
+        <button id="modalButton" class="modal-button">Entendido</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CONTENIDO PRINCIPAL ===== -->
   <div class="app-shell">
     <aside class="sidebar">
       <div class="sidebar-header">
         <div>
-          <p class="eyebrow">Gestión de Notas</p>
-          <h1>Noty</h1>
+          <h1 style="font-size: 2.2rem; margin: 0;">Noty</h1>
+          <p style="font-size: 0.8rem; color: var(--muted); margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">Gestión de Notas</p>
         </div>
-        <button id="logoutButton" class="icon-button" type="button" title="Cerrar sesion">Salir</button>
       </div>
 
       <button id="newNoteButton" class="button primary full-width" type="button">Nueva nota</button>
       <div id="notesList" class="notes-list" aria-label="Lista de notas"></div>
+
+      <!-- Botón Salir -->
+      <div style="margin-top: auto; padding-top: 20px; display: flex; justify-content: flex-start;">
+        <button id="logoutButton" class="button danger" type="button" title="Cerrar sesion" style="padding: 8px 40px; font-size: 0.9rem; width: auto;">Salir</button>
+      </div>
     </aside>
 
     <main class="editor-panel">
@@ -39,20 +59,92 @@
         <button data-command="formatBlock" data-value="h3" type="button">H3</button>
         <button data-command="bold" type="button">B</button>
         <button data-command="italic" type="button">I</button>
-        <button data-command="insertUnorderedList" type="button">Lista</button>
-        <button data-command="insertOrderedList" type="button">1. Lista</button>
-        <button data-command="formatBlock" data-value="p" type="button">Parrafo</button>
+        <button data-command="insertUnorderedList" type="button">• Viñetas</button>
+        <button data-command="insertOrderedList" type="button">1. Numerada</button>
+        <button data-command="formatBlock" data-value="p" type="button">Párrafo</button>
       </div>
 
-      <section id="noteEditor" class="note-editor" contenteditable="true" aria-label="Editor de contenido">
-        <p>Escribe tu nota aqui...</p>
-      </section>
+      <section id="noteEditor" class="note-editor" contenteditable="true" aria-label="Editor de contenido""></section>
 
       <p id="message" class="message success" role="status">Dashboard v4 cargado.</p>
     </main>
   </div>
 
   <script>
+    // ==========================================
+    // FUNCIONES DEL MODAL (disponibles globalmente)
+    // ==========================================
+    function showModal(message) {
+      const modal = document.getElementById('customModal');
+      const modalButtonsContainer = document.getElementById('modalButtonsContainer');
+      const modalMessage = document.getElementById('modalMessage');
+      const modalTitleText = document.getElementById('modalTitleText');
+      const modalTitleIcon = document.getElementById('modalTitleIcon');
+      
+      modalTitleText.textContent = '¡Atención!';
+      modalTitleIcon.innerHTML = '<i class="ph-bold ph-warning"></i>';
+      modalMessage.textContent = message;
+      
+      // Mostrar solo un botón "Entendido"
+      modalButtonsContainer.innerHTML = '<button id="modalButton" class="modal-button">Entendido</button>';
+      document.getElementById('modalButton').addEventListener('click', function() {
+        modal.style.display = 'none';
+      });
+      
+      modal.style.display = 'flex';
+    }
+
+    function showConfirmModal(title, message, onConfirm, confirmText = "Confirmar", isDangerous = false) {
+      const modal = document.getElementById('customModal');
+      const modalTitleText = document.getElementById('modalTitleText');
+      const modalTitleIcon = document.getElementById('modalTitleIcon');
+      const modalMessage = document.getElementById('modalMessage');
+      const modalButtonsContainer = document.getElementById('modalButtonsContainer');
+      
+      modalTitleText.textContent = title;
+      modalMessage.textContent = message;
+      
+      // Cambiar icono según si es peligroso
+      if (isDangerous) {
+        modalTitleIcon.innerHTML = '<i class="ph-bold ph-trash"></i>';
+      } else {
+        modalTitleIcon.innerHTML = '<i class="ph-bold ph-warning"></i>';
+      }
+      
+      // Crear botones de confirmación
+      const cancelClass = isDangerous ? 'modal-button cancel' : 'modal-button';
+      const confirmClass = isDangerous ? 'modal-button confirm danger' : 'modal-button confirm';
+      
+      modalButtonsContainer.innerHTML = `
+        <button id="modalCancelButton" class="${cancelClass}">Cancelar</button>
+        <button id="modalConfirmButton" class="${confirmClass}">${confirmText}</button>
+      `;
+      
+      document.getElementById('modalCancelButton').addEventListener('click', () => {
+        modal.style.display = 'none';
+      });
+      
+      document.getElementById('modalConfirmButton').addEventListener('click', () => {
+        onConfirm();
+        modal.style.display = 'none';
+      });
+      
+      modal.style.display = 'flex';
+    }
+
+    document.getElementById('customModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        this.style.display = 'none';
+      }
+    });
+
+    // Exponer funciones globalmente
+    window.showModal = showModal;
+    window.showConfirmModal = showConfirmModal;
+
+    // ==========================================
+    // API Y CONFIGURACIÓN
+    // ==========================================
     const API_BASE_URL = window.location.port === "3000"
       ? "/api"
       : "http://localhost:3000/api";
@@ -123,7 +215,7 @@
     function setEditor(note) {
       selectedNoteId = note ? note.id : null;
       noteTitle.value = note ? note.title : "";
-      noteEditor.innerHTML = note ? note.content : "<p>Escribe tu nota aqui...</p>";
+      noteEditor.innerHTML = note ? note.content : "";
       renderNotesList();
     }
 
@@ -162,16 +254,31 @@
       }
     }
 
+    // ==========================================
+    // FUNCIÓN SAVE NOTE CON VALIDACIÓN Y MODAL
+    // ==========================================
     async function saveNote() {
-      showMessage("Guardando nota...");
-
       const title = noteTitle.value.trim();
       const content = noteEditor.innerHTML.trim();
 
-      if (!title || !content) {
-        showMessage("El titulo y el contenido son obligatorios.", "error");
+      // Validaciones con modal
+      if (!title && !content) {
+        showModal("El título y el contenido son obligatorios.");
         return;
       }
+
+      if (!title) {
+        showModal("Debes agregar un título a la nota.");
+        return;
+      }
+
+      if (!content) {
+        showModal("Debes agregar contenido a la nota.");
+        return;
+      }
+
+      // Si tiene título y contenido, guardar
+      showMessage("Guardando nota...");
 
       try {
         if (selectedNoteId) {
@@ -195,35 +302,45 @@
       }
     }
 
+    // ==========================================
+    // ELIMINAR NOTA
+    // ==========================================
     async function deleteNote() {
       if (!selectedNoteId) {
-        showMessage("Selecciona una nota antes de eliminar.", "error");
+        showModal("Selecciona una nota antes de eliminar.");
         return;
       }
 
-      if (!window.confirm("Quieres eliminar esta nota?")) {
-        return;
-      }
-
-      try {
-        await apiRequest(`/notes/${selectedNoteId}`, { method: "DELETE" });
-        showMessage("Nota eliminada correctamente.", "success");
-        await loadNotes();
-      } catch (error) {
-        showMessage(error.message, "error");
-      }
+      showConfirmModal(
+        "Eliminar nota",
+        `¿Quieres eliminar la nota "${noteTitle.value}"? Esta acción no se puede deshacer.`,
+        async () => {
+          try {
+            await apiRequest(`/notes/${selectedNoteId}`, { method: "DELETE" });
+            showMessage("Nota eliminada correctamente.", "success");
+            await loadNotes();
+          } catch (error) {
+            showMessage(error.message, "error");
+          }
+        },
+        "Eliminar",
+        true
+      );
     }
 
+    // ==========================================
+    // EXPORTAR PDF
+    // ==========================================
     function exportNoteToPdf() {
       if (!noteTitle.value.trim()) {
-        showMessage("Escribe un titulo antes de exportar.", "error");
+        showModal("Escribe un título antes de exportar.");
         return;
       }
 
       const printWindow = window.open("", "_blank");
 
       if (!printWindow) {
-        showMessage("El navegador bloqueo la ventana de impresion.", "error");
+        showModal("El navegador bloqueó la ventana de impresión.");
         return;
       }
 
@@ -245,9 +362,12 @@
       `);
       printWindow.document.close();
       printWindow.print();
-      showMessage("Usa Guardar como PDF en la ventana de impresion.", "success");
+      showMessage("Usa Guardar como PDF en la ventana de impresión.", "success");
     }
 
+    // ==========================================
+    // EVENTOS Y EXPOSICIÓN GLOBAL
+    // ==========================================
     window.NotyNotes = {
       saveNote,
       deleteNote,

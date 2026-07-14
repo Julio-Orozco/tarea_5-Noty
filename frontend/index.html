@@ -6,24 +6,143 @@
   <title>Noty</title>
   <link rel="stylesheet" href="css/styles.css">
   <link rel="icon" type="image/png" href="images/noty-favicon.png">
+  <!-- Phosphor Icons (como en tu código original) -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
 
 <body class="landing-page">
-  <main class="landing-shell">
-    <section class="landing-content">
-      <p class="eyebrow">Proyecto educativo</p>
-      <h1>
-        <span class="brand-icon"></span>
-        Noty
-      </h1>
-      <p class="landing-copy">
-        Tu libreta digital en la nube. Captura ideas rápidas, organiza tus pendientes y escribe sin distracciones desde cualquier dispositivo.
-      </p>
-      <div class="landing-actions">
-        <a class="button primary" href="register.html">Crear cuenta</a>
-        <a class="button secondary" href="login.html">Iniciar sesión</a>
+  
+  <!-- Barra superior con logo (USANDO PHOSPHOR ICON) -->
+  <header class="landing-header">
+    <div class="landing-logo">
+      <div class="logo-icon-box">
+        <i class="ph-bold ph-notebook-light"></i>
       </div>
-    </section>
+      <span class="logo-text">Noty<span class="logo-dot">.</span></span>
+    </div>
+  </header>
+
+  <!-- Contenedor Principal -->
+  <main class="landing-main">
+    <div class="landing-grid">
+      
+      <!-- Columna Izquierda -->
+      <div class="landing-left">
+        <h1 class="landing-title">Noty</h1>
+        <p class="landing-desc">
+          Tu libreta digital en la nube. Captura ideas rápidas, organiza tus pendientes y escribe sin distracciones desde cualquier dispositivo.
+        </p>
+
+        <div class="landing-buttons">
+          <a href="register.html" class="btn-primary">
+            Crear cuenta
+            <i class="ph-bold ph-arrow-right"></i>
+          </a>
+          <a href="login.html" class="btn-secondary">
+            Iniciar sesión
+          </a>
+        </div>
+      </div>
+
+      <!-- Columna Derecha: Notas Flotantes (CON PHOSPHOR ICONS) -->
+      <div class="landing-right">
+        
+        <!-- Círculos decorativos -->
+        <div class="glow-circle glow-top"></div>
+        <div class="glow-circle glow-bottom"></div>
+
+        <div class="notes-container">
+
+          <!-- NOTA 1: Ideas (Amarillo) -->
+          <div class="note-card note-yellow">
+            <div class="note-inner">
+              <div class="note-header">
+                <span class="note-icon yellow">
+                  <i class="ph-bold ph-lightbulb"></i>
+                </span>
+                <span class="note-tag">Ideas</span>
+              </div>
+              <h4 class="note-title">Nueva idea de App</h4>
+              <p class="note-preview">Crear un organizador visual interactivo...</p>
+            </div>
+          </div>
+
+          <!-- NOTA 2: Panel Principal (Glassmorphism) -->
+          <div class="note-card note-glass">
+            <div class="note-inner">
+              <div class="glass-header">
+                <span class="glass-dot"></span>
+                <span class="glass-label">Hoy • Libreta Personal</span>
+                <i class="ph-bold ph-dots-three-outline"></i>
+              </div>
+              <h3 class="glass-title">Tareas pendientes</h3>
+              <div class="task-list">
+                <div class="task-item task-done">
+                  <span class="task-check done">✓</span>
+                  <span class="task-text done">Escribir diario semanal</span>
+                </div>
+                <div class="task-item">
+                  <span class="task-check"></span>
+                  <span class="task-text">Revisar apuntes de clase</span>
+                </div>
+                <div class="task-item">
+                  <span class="task-check"></span>
+                  <span class="task-text">Planificar las vacaciones ✈️</span>
+                </div>
+              </div>
+              <div class="glass-footer">
+                <span class="sync-status">
+                  <span class="sync-dot"></span>
+                  Sincronizado
+                </span>
+                <span class="sync-time">Auto-guardado hace 1m</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- NOTA 3: Lista de compras (Verde) -->
+          <div class="note-card note-green">
+            <div class="note-inner">
+              <div class="note-header">
+                <span class="note-icon green">
+                  <i class="ph-bold ph-shopping-cart"></i>
+                </span>
+                <span class="note-tag green">Super</span>
+              </div>
+              <ul class="shopping-list">
+                <li class="shopping-item done">
+                  <span class="item-check done">✓</span>
+                  Café Orgánico
+                </li>
+                <li class="shopping-item">
+                  <span class="item-check"></span>
+                  Frutas frescas
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- NOTA 4: Recordatorio (Lavanda) -->
+          <div class="note-card note-lavender">
+            <div class="note-inner">
+              <div class="reminder-header">
+                <i class="ph-bold ph-clock"></i>
+                Recordar
+              </div>
+              <p class="reminder-text">Llamar al equipo de desarrollo</p>
+              <p class="reminder-time">Hoy a las 18:00 hs</p>
+            </div>
+          </div>
+
+          <!-- Decoraciones -->
+          <div class="deco-star">✦</div>
+          <div class="deco-sparkle">✧</div>
+
+        </div>
+      </div>
+
+    </div>
   </main>
+
 </body>
 </html>

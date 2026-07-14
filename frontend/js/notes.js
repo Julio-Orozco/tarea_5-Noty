@@ -18,6 +18,17 @@ const toolbar = document.querySelector(".toolbar");
 let notes = [];
 let selectedNoteId = null;
 
+function showModal(message) {
+  const modal = document.getElementById('customModal');
+  if (modal) {
+    const modalMessage = document.getElementById('modalMessage');
+    modalMessage.textContent = message;
+    modal.style.display = 'flex';
+  } else {
+    alert(message); // fallback si no existe el modal
+  }
+}
+
 window.NotyNotes = {
   saveNote: () => saveNote(),
   deleteNote: () => deleteNote(),
@@ -29,20 +40,38 @@ function showMessage(text, type = "info") {
   messageElement.className = `message ${type}`;
 }
 
+// ==========================================
+// FUNCIÓN SHOW MODAL (usa la función global)
+// ==========================================
+function showModal(message) {
+  if (typeof window.showModal === 'function') {
+    window.showModal(message);
+  } else {
+    // Fallback: si el modal no está disponible, usa alert
+    alert(message);
+  }
+}
+
 function protectDashboard() {
   if (!getToken()) {
     window.location.href = "login.html";
     return false;
   }
-
   return true;
 }
 
 function setEditor(note) {
   selectedNoteId = note ? note.id : null;
   noteTitle.value = note ? note.title : "";
-  noteEditor.innerHTML = note ? note.content : "<p>Escribe tu nota aqui...</p>";
+  // Si hay nota, mostrar su contenido. Si no, dejar VACÍO.
+  if (note) {
+    noteEditor.innerHTML = note.content;
+  } else {
+    noteEditor.innerHTML = "";
+  }
+  
   renderNotesList();
+
 }
 
 function renderNotesList() {
@@ -79,28 +108,51 @@ async function loadNotes() {
   }
 }
 
+// ==========================================
+// FUNCIÓN SAVE NOTE CON VALIDACIÓN Y MODAL
+// ==========================================
 async function saveNote() {
-  showMessage("Guardando nota...");
-
+  // Obtener el texto REAL sin HTML
   const title = noteTitle.value.trim();
-  const content = noteEditor.innerHTML.trim();
+  const editorContent = noteEditor.innerHTML.trim();
+  
+  // Crear un elemento temporal para extraer solo el texto
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = editorContent;
+  const contentText = tempDiv.textContent.trim();
 
-  if (!title || !content) {
-    showMessage("El titulo y el contenido son obligatorios.", "error");
+  // Caso 1: Sin título Y sin contenido real
+  if (title === '' && contentText === '') {
+    showModal("El título y el contenido son obligatorios.");
     return;
   }
+
+  // Caso 2: Sin título, pero con contenido
+  if (title === '' && contentText !== '') {
+    showModal("Debes agregar un título a la nota.");
+    return;
+  }
+
+  // Caso 3: Con título, pero sin contenido
+  if (title !== '' && contentText === '') {
+    showModal("Debes agregar contenido a la nota.");
+    return;
+  }
+
+  // Si llegamos aquí, tiene título Y contenido real
+  showMessage("Guardando nota...");
 
   try {
     if (selectedNoteId) {
       await apiRequest(`/notes/${selectedNoteId}`, {
         method: "PUT",
-        body: JSON.stringify({ title, content })
+        body: JSON.stringify({ title, content: editorContent })
       });
       showMessage("Nota actualizada correctamente.", "success");
     } else {
       const data = await apiRequest("/notes", {
         method: "POST",
-        body: JSON.stringify({ title, content })
+        body: JSON.stringify({ title, content: editorContent })
       });
       selectedNoteId = data.note.id;
       showMessage("Nota creada correctamente.", "success");
@@ -112,28 +164,7 @@ async function saveNote() {
   }
 }
 
-async function deleteNote() {
-  if (!selectedNoteId) {
-    showMessage("Selecciona una nota antes de eliminar.", "error");
-    return;
-  }
 
-  const confirmed = window.confirm("Quieres eliminar esta nota?");
-
-  if (!confirmed) {
-    return;
-  }
-
-  try {
-    await apiRequest(`/notes/${selectedNoteId}`, {
-      method: "DELETE"
-    });
-    showMessage("Nota eliminada correctamente.", "success");
-    await loadNotes();
-  } catch (error) {
-    showMessage(error.message, "error");
-  }
-}
 
 function applyFormat(command, value = null) {
   document.execCommand(command, false, value);
@@ -142,13 +173,11 @@ function applyFormat(command, value = null) {
 
 // ==========================================
 // PDF EXPORT SECTION
-// This function converts the selected note
-// into a downloadable PDF file.
 // ==========================================
 
 function exportNoteToPdf() {
   if (!noteTitle.value.trim()) {
-    showMessage("Escribe un titulo antes de exportar.", "error");
+    showModal("Escribe un título antes de exportar.");
     return;
   }
 
@@ -167,7 +196,7 @@ function exportNoteToPdf() {
     const printWindow = window.open("", "_blank");
 
     if (!printWindow) {
-      showMessage("El navegador bloqueo la ventana de impresion.", "error");
+      showModal("El navegador bloqueó la ventana de impresión.");
       return;
     }
 
@@ -186,7 +215,7 @@ function exportNoteToPdf() {
     `);
     printWindow.document.close();
     printWindow.print();
-    showMessage("Usa Guardar como PDF en la ventana de impresion.", "success");
+    showMessage("Usa Guardar como PDF en la ventana de impresión.", "success");
     return;
   }
 
