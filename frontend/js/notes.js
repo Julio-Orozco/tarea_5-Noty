@@ -71,7 +71,6 @@ function setEditor(note) {
   }
   
   renderNotesList();
-
 }
 
 function renderNotesList() {
