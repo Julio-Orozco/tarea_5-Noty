@@ -6,6 +6,26 @@
 
 const db = require("../database/database");
 
+// Obtener la hora actual en zona horaria de Costa Rica (UTC-6)
+function getCostaRicaTime() {
+  const now = new Date();
+  // Convertir a UTC
+  const utcTime = new Date(now.getTime() + now.getTimezoneOffset() * 60 * 1000);
+  // Restar 6 horas para Costa Rica
+  const costaRicaTime = new Date(utcTime.getTime() - (6 * 60 * 60 * 1000));
+  return costaRicaTime.toISOString().replace('T', ' ').substring(0, 19);
+}
+
+// Convertir fecha UTC a zona horaria de Costa Rica (UTC-6)
+function convertToCostaRicaTime(utcDateString) {
+  const date = new Date(utcDateString);
+  // Convertir a UTC
+  const utcTime = new Date(date.getTime() + date.getTimezoneOffset() * 60 * 1000);
+  // Restar 6 horas para Costa Rica
+  const costaRicaTime = new Date(utcTime.getTime() - (6 * 60 * 60 * 1000));
+  return costaRicaTime.toISOString().replace('T', ' ').substring(0, 19);
+}
+
 function getAllNotes(req, res) {
   const sql = `
     SELECT id, title, content, user_id, created_at, updated_at
@@ -21,7 +41,14 @@ function getAllNotes(req, res) {
       });
     }
 
-    return res.json(notes);
+    // Convertir fechas a zona horaria de Costa Rica
+    const notesWithCostaRicaTime = notes.map(note => ({
+      ...note,
+      created_at: convertToCostaRicaTime(note.created_at),
+      updated_at: convertToCostaRicaTime(note.updated_at)
+    }));
+
+    return res.json(notesWithCostaRicaTime);
   });
 }
 
@@ -45,7 +72,14 @@ function getNoteById(req, res) {
       });
     }
 
-    return res.json(note);
+    // Convertir fechas a zona horaria de Costa Rica
+    const noteWithCostaRicaTime = {
+      ...note,
+      created_at: convertToCostaRicaTime(note.created_at),
+      updated_at: convertToCostaRicaTime(note.updated_at)
+    };
+
+    return res.json(noteWithCostaRicaTime);
   });
 }
 
@@ -67,13 +101,17 @@ function createNote(req, res) {
       });
     }
 
+    const formattedTime = getCostaRicaTime();
+
     return res.status(201).json({
       message: "Note created successfully.",
       note: {
         id: this.lastID,
         title,
         content,
-        user_id: req.user.id
+        user_id: req.user.id,
+        created_at: formattedTime,
+        updated_at: formattedTime
       }
     });
   });
@@ -107,8 +145,11 @@ function updateNote(req, res) {
       });
     }
 
+    const formattedTime = getCostaRicaTime();
+
     return res.json({
-      message: "Note updated successfully."
+      message: "Note updated successfully.",
+      updated_at: formattedTime
     });
   });
 }
